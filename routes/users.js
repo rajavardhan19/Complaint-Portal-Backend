@@ -3,7 +3,7 @@ const bcryptjs = require('bcryptjs');
 const User = require('../models/User');
 const router = express.Router();
 
-// Registration Route
+/* Registration Route
 router.post('/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -30,9 +30,43 @@ router.post('/register', async (req, res) => {
         console.error("Registration error:", err);
         res.status(500).json({ message: "Registration failed!" });
     }
+});*/
+
+
+router.post('/register', async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            // If user doesn't exist, create a new one
+            const hashedPassword = await bcryptjs.hash(password, 10);
+
+            user = new User({
+                name,
+                email,
+                password: hashedPassword
+            });
+
+            await user.save();
+        }
+
+        // Always send "Registration successful!" even if the user already exists
+        res.status(200).json({ message: "You can proceed !", email: user.email });
+
+    } catch (err) {
+        console.error("Registration error:", err);
+        res.status(500).json({ message: "Registration failed!" });
+    }
 });
 
-// Login Route
+
+
+
+
+
+/* Login Route
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -53,6 +87,6 @@ router.post('/login', async (req, res) => {
         console.error("Login error:", err);
         res.status(500).json({ message: "Login failed!" });
     }
-});
+});*/
 
 module.exports = router;
